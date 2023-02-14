@@ -104,4 +104,3 @@ resource "aws_db_instance" "mysql_standalone" {
     Env     = var.environment
   }
 }
--

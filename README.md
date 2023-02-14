@@ -53,3 +53,33 @@ publicのルートテーブルと接続する
 外部から取り込む系は以下ファイルに定義
 
 `data.tf`
+
+## RDS
+`rds.tf`
+
+- マルチAZは未使用
+
+### DB削除方法
+以下に編集
+```
+  # deletion_protection = true
+  # skip_final_snapshot = false
+  deletion_protection = false
+  skip_final_snapshot = true
+```
+
+`terraform plan`
+
+`terraform apply --auto-approve`
+
+その後
+
+`resource "aws_db_instance" "mysql_standalone" {...}`
+
+をコメントアウトし、
+
+`terraform plan`
+
+`terraform apply --auto-approve`
+
+再度作成する際は、逆の方法。
