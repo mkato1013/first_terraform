@@ -42,3 +42,11 @@ resource "aws_db_subnet_group" "mysql_standalone_subnetgroup" {
     Env     = var.environment
   }
 }
+
+#------------------
+# RDS Instance
+#------------------
+resource "random_string" "db_password" {
+  length  = 16
+  special = false
+}
