@@ -2,17 +2,44 @@
 [概要]
 Terraformを使用して、AWSの環境構築練習のためのソース
 
+## 事前準備(macOS)
+aws-cliで、profileに、IAMユーザー登録。
+本ソースコードでは、デフォルトで「terraform」というユーザーを使用。
+
+terraformインストール
+
+`brew install tfenv`
+
+`tfenv install 1.3.8`
+
+`tfenv use 1.3.8`
+
+git-secretsのインストール
+
+`brew install git-secrets`
+
+git-secrets初期化
+
+`git secrets --register-aws --global`
+
+`git secrets --install ~/.git-templates/git-secrets -f`
+
+`git config --global init.templatedir ~/.git-templates/git-secrets`
 ## 手順
 ワークスペースを初期化
+
 `terraform init`
 
 実行計画の参照
+
 `terraform plan`
 
 リソース作成
+
 `terraform apply`
 `yes`
 - こっちでもいい
+
 `terraform apply --auto-approve`
 ## プロバイダ関連
 `main.tf`
@@ -83,3 +110,19 @@ publicのルートテーブルと接続する
 `terraform apply --auto-approve`
 
 再度作成する際は、逆の方法。
+
+## AMI
+外部から情報を取得してくるため、
+
+`data.tf`
+
+## キーペア
+事前に、公開鍵秘密鍵を作成する。ローカルで以下のコマンド。
+
+`ssh-keygen -t rsa -b 2048 -f 鍵の名前`
+
+srcディレクトリ内に、作成したファイルを移動。
+
+`appserver.tf`
+
+に記載。
