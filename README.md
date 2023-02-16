@@ -126,3 +126,18 @@ srcディレクトリ内に、作成したファイルを移動。
 `appserver.tf`
 
 に記載。
+
+## EC2
+`appserver.tf`
+
+## S3
+terraform管理外でコンソール上から、バケットを作成。
+ポリシーは非公開で、指定のIAMユーザー（デフォルトだとterraform）のみすべて許可するように設定する。
+
+`main.tf`
+
+設定する際、
+
+`terraform init`
+
+で初期化する。
