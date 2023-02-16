@@ -141,3 +141,13 @@ terraform管理外でコンソール上から、バケットを作成。
 `terraform init`
 
 で初期化する。
+
+## IAM
+`iam.tf`
+
+SessionManager、S3、EC2、Parameter storeをIAMロールへ接続。
+
+## Parameter store
+`appserver.tf`
+
+DBの `ホスト` `ポート` `DB名` `ユーザー名` `パスワード` を保存。
