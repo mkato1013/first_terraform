@@ -25,6 +25,12 @@ git-secrets初期化
 `git secrets --install ~/.git-templates/git-secrets -f`
 
 `git config --global init.templatedir ~/.git-templates/git-secrets`
+
+アプリケーションのソースコードは用意しておく。
+
+## 注意点
+APサーバーのOSの選択・起動、ミドルウェアのインストール、アプリケーションの設計は、省略。
+
 ## 手順
 ワークスペースを初期化
 
@@ -130,7 +136,7 @@ srcディレクトリ内に、作成したファイルを移動。
 ## EC2
 `appserver.tf`
 
-## S3
+## S3（terraform管理外）
 terraform管理外でコンソール上から、バケットを作成。
 ポリシーは非公開で、指定のIAMユーザー（デフォルトだとterraform）のみすべて許可するように設定する。
 
@@ -151,3 +157,29 @@ SessionManager、S3、EC2、Parameter storeをIAMロールへ接続。
 `appserver.tf`
 
 DBの `ホスト` `ポート` `DB名` `ユーザー名` `パスワード` を保存。
+
+## ALB
+`elb.tf`
+
+## Route53
+`route53.tf`
+
+ドメインは、お名前.comから取得。
+
+ドメインの設定から、ネームサーバーを4つ登録する。
+
+## ACM(Certificate)
+`acm.tf`
+
+acm.tfを削除した際、関連するリソース（ここではroute53）も削除できた方が綺麗だから、
+敢えてroute53のレコードを、acm.tfへ記述。
+
+CNAME作成後、お名前.comにてCNAMEレコードを登録する
+
+別途、 `main.tf` に `バージニア` を記載。
+
+## S3
+`s3.tf`
+
+`サイト用`、オートスケール等で使用する`デプロイ用`の2つ。
+
