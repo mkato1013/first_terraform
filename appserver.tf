@@ -108,9 +108,9 @@ resource "aws_launch_template" "app_lt" {
       aws_security_group.app_sg.id,
       aws_security_group.opmng_sg.id
     ]
-  
-  // ec2が終了後、ネットワークのリソースも合わせて削除
-  delete_on_termination = true
+
+    // ec2が終了後、ネットワークのリソースも合わせて削除
+    delete_on_termination = true
   }
   iam_instance_profile {
     // role
@@ -118,5 +118,39 @@ resource "aws_launch_template" "app_lt" {
   }
   // 初期化スクリプト
   user_data = filebase64("./src/initialize.sh")
+}
 
+#===================
+# auto scaling group
+#===================
+resource "aws_autoscaling_group" "app_asg" {
+  name = "${var.project}-${var.environment}-app-asg"
+
+  max_size         = 1
+  min_size         = 1
+  desired_capacity = 1
+
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+
+  vpc_zone_identifier = [
+    aws_subnet.public_subnet_1a.id,
+    aws_subnet.public_subnet_1c.id
+  ]
+
+  target_group_arns = [aws_lb_target_group.alb_target_group.arn]
+
+  mixed_instances_policy {
+    # 起動テンプレート
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.app_lt.id
+        version            = "$Latest"
+      }
+      override {
+        # 起動テンプレートで設定していないものを追加設定
+        instance_type = "t2.micro"
+      }
+    }
+  }
 }
