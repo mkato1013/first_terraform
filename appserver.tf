@@ -53,28 +53,70 @@ resource "aws_ssm_parameter" "password" {
 }
 
 #===================
-# EC2 Instance
+# EC2 Instance（amazonからAMIイメージを選択したことに伴いコメントアウト）
 #===================
-resource "aws_instance" "app_server" {
-  # data.tf参照
-  ami           = data.aws_ami.app.id
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.public_subnet_1a.id
-  # publicIPを設定
-  associate_public_ip_address = true
-  # IAMロールと接続
-  iam_instance_profile = aws_iam_instance_profile.app_ec2_profile.name
+# resource "aws_instance" "app_server" {
+#   # data.tf参照
+#   ami           = data.aws_ami.app.id
+#   instance_type = "t2.micro"
+#   subnet_id     = aws_subnet.public_subnet_1a.id
+#   # publicIPを設定
+#   associate_public_ip_address = true
+#   # IAMロールと接続
+#   iam_instance_profile = aws_iam_instance_profile.app_ec2_profile.name
 
-  vpc_security_group_ids = [
-    aws_security_group.app_sg.id,
-    aws_security_group.opmng_sg.id
-  ]
+#   vpc_security_group_ids = [
+#     aws_security_group.app_sg.id,
+#     aws_security_group.opmng_sg.id
+#   ]
+#   key_name = aws_key_pair.keypair.key_name
+#   tags = {
+#     Name    = "${var.project}-${var.environment}-app-ec2"
+#     Project = var.project
+#     Env     = var.environment
+#     # アプリケーションサーバー
+#     Type = "app"
+#   }
+# }
+
+#===================
+# launch template
+#===================
+resource "aws_launch_template" "app_lt" {
+  update_default_version = true // 自動でアップデート
+
+  name = "${var.project}-${var.environment}-app-lt"
+
+  image_id = data.aws_ami.app.id
+
   key_name = aws_key_pair.keypair.key_name
-  tags = {
-    Name    = "${var.project}-${var.environment}-app-ec2"
-    Project = var.project
-    Env     = var.environment
-    # アプリケーションサーバー
-    Type = "app"
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name    = "${var.project}-${var.environment}-app-ec2"
+      Project = var.project
+      Env     = var.environment
+      Type    = "app"
+    }
   }
+
+  network_interfaces {
+    // publicIP使用可
+    associate_public_ip_address = true
+    security_groups = [
+      aws_security_group.app_sg.id,
+      aws_security_group.opmng_sg.id
+    ]
+  
+  // ec2が終了後、ネットワークのリソースも合わせて削除
+  delete_on_termination = true
+  }
+  iam_instance_profile {
+    // role
+    name = aws_iam_instance_profile.app_ec2_profile.name
+  }
+  // 初期化スクリプト
+  user_data = filebase64("./src/initialize.sh")
+
 }

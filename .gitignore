@@ -43,3 +43,4 @@ terraform.rc
 .DS_Store
 
 src/*
+!src/initialize.sh

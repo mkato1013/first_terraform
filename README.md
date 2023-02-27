@@ -183,3 +183,24 @@ CNAME作成後、お名前.comにてCNAMEレコードを登録する
 
 `サイト用`、オートスケール等で使用する`デプロイ用`の2つ。
 
+- `latest` - アプリケーションの管理version
+- `tar.gz` - アプリケーションのソースをtarに固める
+
+## オートスケール
+`appserver.tf` の `launch template` にて設定。
+
+初期化スクリプトは、 `src/initialize.sh`
+- `appserver.tf` に初期化スクリプトを登録。
+- S3に、tarで固めたソースを置いておく必要あり
+- 適宜スクリプトファイルは修正。ディレクトリ、バケット名など。
+
+EC2インスタンスからAMIイメージを作成し、Amazon linuxから作成したAMIにイメージを変更していく。
+
+### AMIイメージに変更後
+- data.tfの「aws_ami」でamazon linuxの箇所をコメントアウトし、新たに、AMIイメージ用のfilterを追加
+- appserver.tfのEC2インスタンスをコメントアウト
+- elb.tfの「aws_lb_target_group_attachment」をコメントアウト
+
+
+実行後は、EC2の起動テンプレートが作成され、そこからインスタンスの起動を行う。
+（コンソール上にて実行）
