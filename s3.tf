@@ -31,7 +31,7 @@ resource "aws_s3_bucket_public_access_block" "s3_static_bucket" {
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
-  restrict_public_buckets = false
+  restrict_public_buckets = true # openではなく制約をかけるためtrue
 
   # 依存関係定義（子:aws_s3_bucket_policy）
   depends_on = [
@@ -47,13 +47,14 @@ resource "aws_s3_bucket_policy" "s3_static_bucket" {
 
 data "aws_iam_policy_document" "s3_static_bucket" {
   statement {
-    effect    = "Allow" # 誰でもアクセスできる
+    effect    = "Allow"
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.s3_static_bucket.arn}/*"]
     principals {
-      # 全ての人に対して
-      type        = "*"
-      identifiers = ["*"]
+      # 何に対してアクセスを許可するか
+      type = "AWS"
+      # cloudfrontからS3へのアクセス
+      identifiers = [aws_cloudfront_origin_access_identity.cf_s3_origin_access_identity.iam_arn]
     }
   }
 }
